@@ -6,8 +6,8 @@ source "$HOME/.config/sketchybar/icons.sh" # Loads all defined icons
 ITEM_DIR="$HOME/.config/sketchybar/items" # Directory where the items are configured
 PLUGIN_DIR="$HOME/.config/sketchybar/plugins" # Directory where all the plugin scripts are stored
 
-FONT="SF Pro" # Needs to have Regular, Bold, Semibold, Heavy and Black variants
-SPACE_CLICK_SCRIPT="yabai -m space --focus \$SID 2>/dev/null" # The script that is run for clicking on space components
+FONT="SF Pro Text" # Use SF Pro Text for both labels and icons
+SYMBOLS_FONT="FiraCode Nerd Font" # Use a Nerd Font with battery icons
 
 PADDINGS=3 # All paddings use this value (icon, label, background)
 
@@ -30,7 +30,7 @@ sketchybar --bar     height=50                                         \
                      blur_radius=20                                    \
                                                                        \
            --default updates=when_shown                                \
-                     icon.font="$FONT:Bold:14.0"                       \
+                     icon.font="$SYMBOLS_FONT:Regular:16.0" \
                      icon.color=$ICON_COLOR                            \
                      icon.padding_left=$PADDINGS                       \
                      icon.padding_right=$PADDINGS                      \
@@ -48,13 +48,23 @@ sketchybar --bar     height=50                                         \
 
 # Left
 source "$ITEM_DIR/apple.sh"
+source "$ITEM_DIR/aerospace.sh"
 source "$ITEM_DIR/spaces.sh"
 
 # Center
 # source "$ITEM_DIR/spotify.sh"
 
 # Right
-source "$ITEM_DIR/calendar.sh"
+# source "$ITEM_DIR/calendar.sh"
+
+sketchybar --add item power right \
+           --set power plugin=script \
+                      script="$ITEM_DIR/power.sh" \
+                      update_freq=60 \
+                      icon.font="$SYMBOLS_FONT:Bold:16.0" \
+                      icon.color=$ICON_COLOR \
+                      label.font="$FONT:Semibold:13.0" \
+                      label.color=$LABEL_COLOR
 
 ############## FINALIZING THE SETUP ##############
 sketchybar --update
