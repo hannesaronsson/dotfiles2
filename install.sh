@@ -9,10 +9,18 @@ BREW_PACKAGES=(
   neovim
   alacritty
   borders
+  pyenv
+  colima
+  docker
+  fzf
+  htop
+  tree
+  poetry
 )
 BREW_CASKS=(
   font-fira-code-nerd-font
   visual-studio-code
+  miniconda
 )
 AEROSPACE_OPTIONS=(
   --HEAD
@@ -31,6 +39,17 @@ if ! xcode-select -p >/dev/null 2>&1; then
   xcode-select --install
 fi
 
+# Disable press-and-hold for key repeat
+echo "Disabling press-and-hold for key repeat..."
+defaults write -g ApplePressAndHoldEnabled -bool false
+
+# Install custom US no-dead-key keyboard layout if present
+LAYOUT_SRC="keyboard-layouts/us_no_dead_key.keylayout"
+if [ -f "$LAYOUT_SRC" ]; then
+  echo "Installing custom keyboard layout..."
+  sudo cp "$LAYOUT_SRC" "/Library/Keyboard Layouts/"
+fi
+
 # Install Homebrew if missing
 if ! command -v brew >/dev/null 2>&1; then
   echo "Homebrew not found. Installing Homebrew..."
@@ -41,15 +60,25 @@ fi
 echo "Updating Homebrew..."
 brew update
 brew upgrade
+brew analytics off
 
 # Ensure required Homebrew packages
 echo "Installing Homebrew packages: ${BREW_PACKAGES[*]}"
 brew install "${BREW_PACKAGES[@]}"
 
+# Configure Poetry to create virtual environments inside each project
+echo "Configuring Poetry virtualenvs location..."
+poetry config virtualenvs.in-project true
+
 # Install FiraCode Nerd Font via Homebrew cask
 brew tap homebrew/cask-fonts
 echo "Installing Homebrew casks: ${BREW_CASKS[*]}"
 brew install --cask "${BREW_CASKS[@]}"
+
+# Start Colima for Docker compatibility
+echo "Starting Colima service..."
+brew services start colima
+colima start
 
 # Install oh-my-zsh if missing
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
@@ -64,8 +93,7 @@ if ! command -v aerospace >/dev/null 2>&1; then
 fi
 
 # Stow dotfiles
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-echo "Stowing dotfiles from ${DOTFILES_DIR}..."
-stow -d "${DOTFILES_DIR}" -t "${HOME}" nvim zsh alacritty aerospace
+echo "Stowing dotfiles..."
+stow -t "${HOME}" nvim zsh alacritty aerospace
 
 echo "Setup complete!"
